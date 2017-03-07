@@ -116,7 +116,7 @@ static void policy_connect(struct policy_data *data,
 	struct reconnect_data *reconnect;
 
 	reconnect = reconnect_find(btd_service_get_device(service));
-	if (reconnect && reconnect->active)
+	if (btd_service_is_blocked(service) || (reconnect && reconnect->active))
 		return;
 
 	DBG("%s profile %s", btd_device_get_path(data->dev), profile->name);
@@ -571,7 +571,8 @@ static struct reconnect_data *reconnect_add(struct btd_service *service)
 		reconnects = g_slist_append(reconnects, reconnect);
 	}
 
-	if (g_slist_find(reconnect->services, service))
+	if (btd_service_is_blocked(service) ||
+				g_slist_find(reconnect->services, service))
 		return reconnect;
 
 	reconnect->services = g_slist_append(reconnect->services,
